@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Peace Corps</string>
+    <string name="title_activity_guyana">Guyana Deaf Community</string>
+    <string name="record_video">Record Video</string>
+    <string name="peace_corps">Peace Corps</string>
+    <string name="tag_save">Tag Location and Save</string>
+    <string name="delete">Delete Video</string>
+    <string name="post_to_youtube">Post to Youtube</string>
+    <string name="post_to_Website">Post to Website</string>
+    <string name="exit">Exit</string>
+    <string name="title_activity_record_video">Record Video</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="test">Yo! Baby :) I love you Diya ;)</string>
+    <string name="title_activity_preview_video">Preview Captured Video</string>
+</resources>
