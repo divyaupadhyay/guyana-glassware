@@ -4,40 +4,25 @@ import com.google.android.glass.media.Sounds;
 import com.google.android.glass.widget.CardBuilder;
 import com.google.android.glass.widget.CardScrollAdapter;
 import com.google.android.glass.widget.CardScrollView;
-import android.app.Activity;
-import android.content.Context;
-import android.media.AudioManager;
-import android.os.Bundle;
-import android.provider.Settings;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.FileObserver;
 import android.provider.MediaStore;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.speech.*;
-import java.util.List;
-import android.os.Environment;
-import android.net.Uri;
-import android.location.*;
-//import com.google.android.glass.media.CameraManager;
+import android.widget.AdapterView;
 import com.google.android.glass.touchpad.Gesture;
 import com.google.android.glass.touchpad.GestureDetector;
-import guyana.glass.systers.projectguyana.CameraView;
-import java.io.File;
+import android.view.MotionEvent;
+import android.view.*;
+
 
 /**
  * An {@link Activity} showing a tuggable "Hello World!" card.
- * <p>
+ * <p/>
  * The main content view is composed of a one-card {@link CardScrollView} that provides tugging
  * feedback to the user when swipe gestures are detected.
  * If your Glassware intends to intercept swipe gestures, you should set the content view directly
@@ -47,58 +32,75 @@ import java.io.File;
  */
 
 /**
- * RecordVideo Activity
- * This activity allows to Record Video through Google Glass's supported Camera Service
- * It can be accessed through Options Menu from Home Screen
- * On Recording Video it allows to accept Name with the help of Speech Recognizer
+ * Guyana - Launcher Activity
+ * It supports Motion events such as Swipe and Taps through
+ * GestureDetector
+ * Location Activity has been associated with the SWIPE_RIGHT
+ * Options Menu to select between Capturing Image or Video has been associated with TAP
+ * Switching between these two options can be done with the help of Scroller
+ *
  */
+public class Guyana extends Activity {
 
-public class RecordVideo extends Activity {
-    private static final int TAKE_VIDEO_REQUEST = 2;
-    public static final String SHARE_PICTURE = "picture";
+    private View mView;
+    private CardScrollView mCardScroller;
     private GestureDetector mGestureDetector = null;
-    private CameraView cameraView;
-    private FileObserver observer;
-
-    private static final int SPEECH_REQUEST = 0;
-    String spokenText;
-
-    // Function to initiate Speech Recognizer for accepting Name of file via Speech Input
-    // Requires active internet connection
-    private void displaySpeechRecognizer() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        startActivityForResult(intent, SPEECH_REQUEST);
-    }
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        //super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        // Initiate CameraView
-        cameraView = new CameraView(this);
-
-        // Turn on Gestures
         mGestureDetector = createGestureDetector(this);
-        setContentView(cameraView);
+        mView = buildView();
+        mCardScroller = new CardScrollView(this);
+        mCardScroller.setAdapter(new CardScrollAdapter() {
+            @Override
+            public int getCount() {
+                return 1;
+            }
+
+            @Override
+            public Object getItem(int position) {
+                return mView;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                return mView;
+            }
+
+            @Override
+            public int getPosition(Object item) {
+                if (mView.equals(item)) {
+                    return 0;
+                }
+                return AdapterView.INVALID_POSITION;
+            }
+        });
+
+        // Handle the TAP event.
+         mCardScroller.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Open Menu for Option Selection
+                openOptionsMenu();
+                AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                am.playSoundEffect(Sounds.TAP);
+            }
+        });
+        setContentView(mCardScroller);
 
     }
-    // options menu
-
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (cameraView != null) {cameraView.releaseCamera();}
-        //cameraView.activate();
+        mCardScroller.activate();
     }
 
     @Override
     protected void onPause() {
-        //mCardScroller.deactivate();
+        mCardScroller.deactivate();
         super.onPause();
-            if (cameraView != null) {cameraView.releaseCamera();}
     }
 
     private GestureDetector createGestureDetector(Context context) {
@@ -106,17 +108,28 @@ public class RecordVideo extends Activity {
         gestureDetector.setBaseListener(new GestureDetector.BaseListener() {
             @Override
             public boolean onGesture(Gesture gesture) {
-                // Make sure view is initiated
-                if (cameraView != null) {
-                    if (gesture == Gesture.TAP) {
-                        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                        if (intent != null) {
-                            startActivityForResult(intent, TAKE_VIDEO_REQUEST);
-                        }
-                        return true;
-                    }
+                // Plays DISALLOWED sound on TWO_TAP as no action is associated with it
+                if (gesture == Gesture.TWO_TAP) {
+                    AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    am.playSoundEffect(Sounds.DISALLOWED);
+                    return true;
                 }
-
+                // Handler for initiating LocationActivity with SWIPE_RIGHT action
+                else if (gesture == Gesture.SWIPE_RIGHT) {
+                    AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    am.playSoundEffect(Sounds.TAP);
+                    Intent intent = new Intent(getApplicationContext(), LocationActivity.class);
+                    if (intent != null) {
+                        startActivity(intent);
+                    }
+                    return true;
+                }
+                // Plays DISALLOWED sound on SWIPE_LEFT as no action is associated with it
+                else if (gesture == Gesture.SWIPE_LEFT) {
+                    AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    am.playSoundEffect(Sounds.DISALLOWED);
+                    return true;
+                }
                 return false;
             }
         });
@@ -124,124 +137,50 @@ public class RecordVideo extends Activity {
         return gestureDetector;
     }
 
-    /*
-	 * Send generic motion events to the gesture detector
-	 */
     @Override
-    public boolean onGenericMotionEvent(MotionEvent event)
-    {
-        if (mGestureDetector != null)
-        {return mGestureDetector.onMotionEvent(event);}
+    public boolean onGenericMotionEvent(MotionEvent event) {
+        // Binding GestureDetector on MotionEvent
+        if (mGestureDetector != null) {
+            return mGestureDetector.onMotionEvent(event);
+        }
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        // Handle photos
-        if (requestCode == TAKE_VIDEO_REQUEST && resultCode == RESULT_OK) {
-            String thumbnailPath = data.getStringExtra(com.google.android.glass.content.Intents.EXTRA_THUMBNAIL_FILE_PATH);
-            String videoPath = data.getStringExtra(com.google.android.glass.content.Intents.EXTRA_VIDEO_FILE_PATH);
-            processPictureWhenReady(videoPath);
-        }
-        if (requestCode == SPEECH_REQUEST && resultCode == RESULT_OK) {
-            List<String> results = data.getStringArrayListExtra(
-                    RecognizerIntent.EXTRA_RESULTS);
-            spokenText = results.get(0);
-
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void processPictureWhenReady(final String picturePath)
-    {
-        final File pictureFile = new File(picturePath);
-
-        displaySpeechRecognizer();
-        if (pictureFile.exists())
-        {
-            /*Intent shareIntent = new Intent(this, BluetoothClient.class);
-            shareIntent.putExtra(SHARE_PICTURE, picturePath);
-            startActivity(shareIntent);
-            finish();
-            */
-        }
-        else
-        {
-
-        }// The file does not exist yet. Before starting the file observer, you
-            // can update your UI to let the user know that the application is
-            // waiting for the picture (for example, by displaying the thumbnail
-            // image and a progress indicator).
-            /*ViewGroup vg = (ViewGroup)(cameraView.getParent());
-            vg.removeAllViews();
-            RelativeLayout layout = new RelativeLayout(this);
-            ProgressBar progressBar = new ProgressBar(this,null,android.R.attr.progressBarStyleLarge);
-            progressBar.setIndeterminate(true);
-            progressBar.setVisibility(View.VISIBLE);
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
-            params.addRule(RelativeLayout.CENTER_IN_PARENT);
-            layout.addView(progressBar,params);
-            setContentView(layout); */
-
-        final File parentDirectory = pictureFile.getParentFile();
-            observer = new FileObserver(parentDirectory.getPath()) {
-                // Protect against additional pending events after CLOSE_WRITE is
-                // handled.
-                private boolean isFileWritten;
-
-                @Override
-                public void onEvent(int event, String path) {
-                    if (!isFileWritten) {
-                        // For safety, make sure that the file that was created in
-                        // the directory is actually the one that we're expecting.
-                        File affectedFile = new File(parentDirectory, path);
-
-                        isFileWritten = (event == FileObserver.CLOSE_WRITE
-                                && affectedFile.equals(pictureFile));
-
-                        if (isFileWritten) {
-                            processPictureWhenReady(picturePath);
-                            //File videoFile = new File(pictureFile.getParent(),spokenText);
-                            //if(videoFile!=null){pictureFile.renameTo(videoFile);}
-                            //guyanaView = new Guyana(this);
-                            //guyanaView.
-
-                            // Turn on Gestures
-                            //mGestureDetector = createGestureDetector(this);
-
-                            //setContentView(guyanaView);
-                            stopWatching();
-
-
-                            // Now that the file is ready, recursively call
-                            // processPictureWhenReady again (on the UI thread).
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-
-
-                                }
-                            });
-                        }
-                    }
-                }
-            };
-
-            observer.startWatching();
-        }
-
-    /**
-     * Builds a Glass styled "Hello World!" view using the {@link CardBuilder} class.
-     */
     private View buildView() {
         CardBuilder card = new CardBuilder(this, CardBuilder.Layout.TEXT);
-        card.setText(R.string.title_activity_shoot_video);
+
+        card.setText("Welcome");
         return card.getView();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.guyana, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent = null;
+
+        switch (item.getItemId()) {
+            case R.id.item_take_picture:
+                // Handler to start CaptureImage activity on it's selection
+                intent = new Intent(getApplicationContext(), CaptureImage.class);
+                if (intent != null) {
+                    startActivity(intent);
+                }
+                return true;
+            case R.id.item_shoot_video:
+                // Handler to start RecordVideo activity on it's selection
+                intent = new Intent(getApplicationContext(), RecordVideo.class);
+                if (intent != null) {
+                    startActivity(intent);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }
