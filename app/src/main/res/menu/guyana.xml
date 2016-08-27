@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/item_take_picture"
+        android:title="@string/title_activity_take_picture"
+        android:icon="@drawable/ic_glass_logo"/>
+    <item
+        android:id="@+id/item_shoot_video"
+        android:title="@string/title_activity_shoot_video"
+        android:icon="@drawable/ic_glass_logo"/>
+</menu>
