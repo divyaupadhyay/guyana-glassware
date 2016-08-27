@@ -1,44 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="guyana.glass.systers.projectguyana" >
+    package="guyana.glass.systers.projectguyana">
 
     <uses-sdk
         android:minSdkVersion="19"
         android:targetSdkVersion="19" />
 
-    <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-feature android:name="android.hardware.camera" />
 
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="com.google.android.glass.permission.DEVELOPMENT" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <android:uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="19" />
-    <android:uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <android:uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="19" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".Guyana"
             android:icon="@drawable/ic_glass_logo"
-            android:label="@string/title_activity_guyana" >
+            android:label="@string/title_activity_guyana">
             <intent-filter>
                 <action android:name="com.google.android.glass.action.VOICE_TRIGGER" />
                 <action android:name="com.google.android.glass.action.CAMERA" />
                 <action android:name="com.google.android.glass.action.ACCESS_COARSE_LOCATION" />
-                <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+
+                <action android:name="android.intent.action.MAIN" />
             </intent-filter>
 
             <meta-data
@@ -48,7 +44,7 @@
         <activity
             android:name=".RecordVideo"
             android:icon="@drawable/ic_glass_logo"
-            android:label="@string/title_activity_record_video" >
+            android:label="@string/title_activity_record_video">
             <intent-filter>
                 <action android:name="com.google.android.glass.action.VOICE_TRIGGER" />
                 <action android:name="com.google.android.glass.action.CAMERA" />
@@ -57,8 +53,31 @@
         <activity
             android:name=".PreviewVideo"
             android:icon="@drawable/ic_glass_logo"
-            android:label="@string/title_activity_preview_video" >
+            android:label="@string/title_activity_preview_video">
+            <intent-filter>
+                <action android:name="com.google.android.glass.action.VOICE_TRIGGER" />
+                <action android:name="com.google.android.glass.action.CAMERA" />
+            </intent-filter>
         </activity>
+        <activity
+            android:name=".AddTitle"
+            android:icon="@drawable/ic_glass_logo"
+            android:label="@string/title_activity_add_title">
+            <intent-filter>
+                <action android:name="com.google.android.glass.action.VOICE_TRIGGER" />
+                <action android:name="com.google.android.glass.action.CAMERA" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".CaptureImage"
+            android:icon="@drawable/ic_glass_logo"
+            android:label="@string/title_activity_take_picture">
+            <intent-filter>
+                <action android:name="com.google.android.glass.action.VOICE_TRIGGER" />
+                <action android:name="com.google.android.glass.action.CAMERA" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".LocationActivity"></activity>
     </application>
 
 </manifest>
